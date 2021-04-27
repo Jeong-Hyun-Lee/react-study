@@ -14,7 +14,7 @@ export default function Search() {
 			<Row justify='center' style={{ marginTop: 100 }}>
 				<Col>
 					<Typography.Title style={{ fontFamily: 'Caligrahhy' }}>
-						찾아야한다.
+						AutoComplete
 					</Typography.Title>
 				</Col>
 			</Row>
