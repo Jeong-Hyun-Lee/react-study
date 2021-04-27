@@ -1,17 +1,13 @@
-import {
-	Col,
-	Descriptions,
-	PageHeader,
-	Row,
-	Space,
-	Spin,
-	Typography,
-} from 'antd'
+import { Col, Descriptions, PageHeader, Row, Typography } from 'antd'
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import useFetchInfo from '../../common/hook/useFetchInfo'
 import { actions, Types } from '../state'
+import Department from './Department'
+import TagList from './TagList'
+import History from '../../common/components/History'
+import FetchLabel from '../components/FetchLabel'
 
 export default function User({ match }) {
 	const history = useHistory()
@@ -29,7 +25,12 @@ export default function User({ match }) {
 		<Row justify='center'>
 			<Col xs={24} md={20} lg={14}>
 				<PageHeader
-					title={<Space>사용자 정보 {isSlow && <Spin size='small' />}</Space>}
+					title={
+						<FetchLabel
+							label='사용자 정보'
+							actionType={Types.FetchUser}
+						></FetchLabel>
+					}
 					onBack={history.goBack}
 				>
 					{user && (
@@ -37,11 +38,39 @@ export default function User({ match }) {
 							<Descriptions.Item label='이름'>
 								<Typography>{user.name}</Typography>
 							</Descriptions.Item>
-							<Descriptions.Item label='소속'>
-								{user.department}
+							<Descriptions.Item
+								label={
+									<FetchLabel
+										label='소속'
+										actionType={Types.FetchUpdateUser}
+										fetchKey='department'
+									></FetchLabel>
+								}
+							>
+								<Department />
 							</Descriptions.Item>
-							<Descriptions.Item label='태그'>{user.tag}</Descriptions.Item>
-							<Descriptions.Item label='수정 내역'>수정 내역</Descriptions.Item>
+							<Descriptions.Item
+								label={
+									<FetchLabel
+										label='태그'
+										actionType={Types.FetchUpdateUser}
+										fetchKey='tag'
+									></FetchLabel>
+								}
+							>
+								<TagList />
+							</Descriptions.Item>
+							<Descriptions.Item
+								label={
+									<FetchLabel
+										label='수정 내역'
+										actionType={Types.FetchUpdateUser}
+										fetchKey='history'
+									></FetchLabel>
+								}
+							>
+								<History />
+							</Descriptions.Item>
 						</Descriptions>
 					)}
 					{!user && isFetched && (

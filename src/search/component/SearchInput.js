@@ -14,7 +14,6 @@ export default function SearchInput() {
 	const keyword = useSelector(state => state.search.keyword)
 	const dispatch = useDispatch()
 	function setKeyword(value) {
-		console.log('value change', keyword, value)
 		if (value !== keyword) {
 			dispatch(actions.setValue('keyword', value))
 			dispatch(actions.fetchAutoComplete(value))
