@@ -1,36 +1,48 @@
-import { all, call, put, takeEvery } from '@redux-saga/core/effects'
-import { actions, Types } from './'
-import { callApi } from '../../common/util/api'
-import { deleteApiCache, makeFetchSaga } from '../../common/util/fetch'
-import { takeLeading } from 'redux-saga/effects'
+import { all, call, put, takeEvery } from '@redux-saga/core/effects';
+import { actions, Types } from './';
+import { callApi } from '../../common/util/api';
+import { deleteApiCache, makeFetchSaga } from '../../common/util/fetch';
+import { takeLeading } from 'redux-saga/effects';
 
 function* fetchUser({ name }) {
 	const { isSuccess, data } = yield call(callApi, {
 		url: 'user/search',
 		params: { keyword: name },
-	})
+	});
 
 	if (isSuccess && data) {
-		const user = data.find(item => item.name === name)
+		const user = data.find(item => item.name === name);
 		if (user) {
-			yield put(actions.setValue('user', user))
+			yield put(actions.setValue('user', user));
 		}
 	}
 }
 
 function* fetchUpdateUser({ user, key, value }) {
-	const oldValue = user[key]
-	yield put(actions.setValue('user', { ...user, [key]: value }))
+	const oldValue = user[key];
+	yield put(actions.setValue('user', { ...user, [key]: value }));
 	const { isSuccess, data } = yield call(callApi, {
 		url: '/user/update',
 		method: 'post',
 		data: { name: user.name, key, value, oldValue },
-	})
+	});
 
 	if (isSuccess && data) {
-		deleteApiCache()
+		deleteApiCache();
+		yield put(actions.addHistory(data.history));
 	} else {
-		yield put(actions.setValue('user', user))
+		yield put(actions.setValue('user', user));
+	}
+}
+
+function* fetchUserHistory({ name }) {
+	const { isSuccess, data } = yield call(callApi, {
+		url: '/history',
+		params: { name },
+	});
+
+	if (isSuccess && data) {
+		yield put(actions.setValue('userHistory', data));
 	}
 }
 
@@ -44,6 +56,10 @@ export default function* () {
 			Types.FetchUpdateUser,
 			makeFetchSaga({ fetchSaga: fetchUpdateUser, canCache: false }),
 		),
-	])
+		takeLeading(
+			Types.FetchUserHistory,
+			makeFetchSaga({ fetchSaga: fetchUserHistory, canCache: false }),
+		),
+	]);
 	// yield all([takeEvery(Types.FetchUser, fetchUser)])
 }
